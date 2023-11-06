@@ -9,12 +9,12 @@ API desenvolvida em Typescript, Node.js e Express, integrada ao banco de dados M
 Tabela de conteúdos
 =================
 <!--ts-->
-   * [Sobre o projeto](##-sobre-o-projeto)
-   * [Conceitos utilizados](##-conceitos-utilizados)
-   * [Funcionalidades](##-funcionalidades)
-   * [Tecnologias utilizadas](##-tecnologias-utilizadas)
-   * [Entidades](##-entidades)
-   * [Rotas](##-rotas)
+   * [Sobre o projeto](#sobre-o-projeto)
+   * [Conceitos utilizados](#conceitos-utilizados)
+   * [Funcionalidades](#funcionalidades)
+   * [Tecnologias utilizadas](#tecnologias-utilizadas)
+   * [Entidades](#entidades)
+   * [Rotas](#rotas)
 <!--te-->
 
 
