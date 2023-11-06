@@ -1,5 +1,5 @@
 <h1 align="center">
-    <a href="#" alt="API Trip"> API Bank </a>
+    <a href="#" alt="API users crud"> API users CRUD </a>
 </h1>
 
 <h3 align="center">
@@ -11,7 +11,7 @@ Tabela de conteúdos
 <!--ts-->
    * [Sobre o projeto](#-sobre-o-projeto)
    * [Conceitos utilizados](#-conceitos-utilizados)
-   * [Funcionalidades](#%EF%B8%8F-funcionalidades)
+   * [Funcionalidades](#-funcionalidades)
    * [Tecnologias utilizadas](#-tecnologias-utilizadas)
    * [Entidades](#-entidades)
    * [Rotas](#-rotas)
