@@ -46,7 +46,7 @@ export class CreateUserController implements ICreateUserController {
     } catch (error) {
       return {
         statusCode: 500,
-        body: "Something went wrong",
+        body: "Something went wrong.",
       };
     }
   }
