@@ -70,6 +70,6 @@ User {
 - POST /users - cria um usuário
 - PATCH /users/:id - atualiza um usuário
 - DELETE /users/:id - deleta um usuário
-- LOGIN /users/login - login de usuário
+- LOGIN /login - login de usuário
 
 ## Link do Deploy: https://bored-ox-fedora.cyclic.app
