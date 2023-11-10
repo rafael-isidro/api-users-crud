@@ -49,11 +49,14 @@ export const getUsersController = async (_: Request, res: Response) => {
 export const updateUserController = async (req: Request, res: Response) => {
   const mongoUpdateUserRepository = new MongoUpdateUserRepository();
   const updateUserService = new UpdateUserService(mongoUpdateUserRepository);
-  
-  const { body, statusCode } = await updateUserService.handle({
-    body: req.body,
-    params: req.params,
-  });
+
+  const { body, statusCode } = await updateUserService.handle(
+    {
+      body: req.body,
+      params: req.params,
+    },
+    res
+  );
 
   res.status(statusCode).send(body);
 };

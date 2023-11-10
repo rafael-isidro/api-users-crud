@@ -3,12 +3,9 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { User } from "../../models/user";
 import { badRequest, ok, serverError } from "../../controllers/helpers";
-import {
-  HttpRequest,
-  HttpResponse,
-  IService,
-} from "../../controllers/protocols";
+import { HttpRequest, HttpResponse } from "../../controllers/protocols";
 import { IGetUserRepository, LoginUserParam } from "./protocols";
+import { IService } from "../protocols";
 
 export class LoginUserService implements IService {
   constructor(private readonly getUserRepository: IGetUserRepository) {}
@@ -36,7 +33,9 @@ export class LoginUserService implements IService {
         return badRequest("E-mail is invalid");
       }
 
-      const user = await this.getUserRepository.getUserByEmail(body!.email);
+      const user = await this.getUserRepository.getUserByParam({
+        email: body!.email,
+      });
       if (!user) {
         return badRequest("User not found.");
       }

@@ -1,7 +1,8 @@
 import { User } from "../../models/user";
 import { ok, serverError } from "../../controllers/helpers";
-import { HttpResponse, IService } from "../../controllers/protocols";
+import { HttpResponse } from "../../controllers/protocols";
 import { IGetUsersRepository } from "./protocols";
+import { IService } from "../protocols";
 
 export class GetUsersService implements IService {
   constructor(private readonly getUsersRepository: IGetUsersRepository) {}

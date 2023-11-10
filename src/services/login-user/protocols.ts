@@ -1,3 +1,4 @@
+import { ObjectId } from "mongodb";
 import { User } from "../../models/user";
 
 export interface LoginUserParam {
@@ -6,7 +7,9 @@ export interface LoginUserParam {
 }
 
 export interface IGetUserRepository {
-  getUserByEmail(email: string): Promise<User | null>;
+  getUserByParam(
+    param: { email: string } | { _id: ObjectId }
+  ): Promise<User | null>;
 }
 
 export type JwtPayload = {

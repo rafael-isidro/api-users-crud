@@ -1,5 +1,3 @@
-import { NextFunction } from "express";
-
 export interface HttpResponse<T> {
   statusCode: HttpStatusCode;
   body: T;
@@ -18,12 +16,4 @@ export enum HttpStatusCode {
   UNAUTHORIZED = 401,
   NOT_FOUND = 404,
   SERVER_ERROR = 500,
-}
-
-export interface IService {
-  handle(
-    httpRequest: HttpRequest<unknown>,
-    httpResponse?: HttpResponse<unknown>,
-    next?: NextFunction,
-  ): Promise<HttpResponse<unknown> | string>;
 }

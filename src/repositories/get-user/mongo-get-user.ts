@@ -2,12 +2,15 @@ import { IGetUserRepository } from "../../services/login-user/protocols";
 import { MongoClient } from "../../database/mongo";
 import { User } from "../../models/user";
 import { MongoUser } from "../mongo-protocols";
+import { ObjectId } from "mongodb";
 
 export class MongoGetUserRepository implements IGetUserRepository {
-  async getUserByEmail(email: string): Promise<User | null> {
+  async getUserByParam(
+    param: { email: string } | { _id: ObjectId }
+  ): Promise<User | null> {
     const user = await MongoClient.db
       .collection<MongoUser>("users")
-      .findOne({ email });
+      .findOne(param);
 
     if (!user) {
       return null;

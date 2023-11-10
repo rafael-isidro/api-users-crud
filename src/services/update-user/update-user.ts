@@ -2,18 +2,18 @@ import validator from "validator";
 import bcrypt from "bcrypt";
 import { User } from "../../models/user";
 import { IUpdateUserRepository, UpdateUserParams } from "./protocols";
-import {
-  HttpRequest,
-  HttpResponse,
-  IService,
-} from "../../controllers/protocols";
+import { HttpRequest, HttpResponse } from "../../controllers/protocols";
 import { badRequest, ok, serverError } from "../../controllers/helpers";
 import { MongoGetUserRepository } from "../../repositories/get-user/mongo-get-user";
+import { IService } from "../protocols";
+import { Response } from "express";
+import { ObjectId } from "mongodb";
 
 export class UpdateUserService implements IService {
   constructor(private readonly updateUserRepository: IUpdateUserRepository) {}
   async handle(
-    httpRequest: HttpRequest<UpdateUserParams>
+    httpRequest: HttpRequest<UpdateUserParams>,
+    httpResponse: Response
   ): Promise<HttpResponse<User | string>> {
     try {
       const id = httpRequest?.params?.id;
@@ -43,11 +43,17 @@ export class UpdateUserService implements IService {
 
       const mongoGetUserRepository = new MongoGetUserRepository();
       if (body.email) {
-        const emailExists = await mongoGetUserRepository.getUserByEmail(
-          body!.email!
-        );
+        const { id } = httpResponse.locals.user;
+        body.email = body.email.toLowerCase();
 
-        if (emailExists) {
+        const userByEmail = await mongoGetUserRepository.getUserByParam({
+          email: body.email,
+        });
+        const userById = await mongoGetUserRepository.getUserByParam({
+          _id: new ObjectId(id),
+        });
+
+        if (userByEmail && body.email !== userById!.email) {
           return badRequest("E-mail already exists.");
         }
 
@@ -57,6 +63,7 @@ export class UpdateUserService implements IService {
           return badRequest("E-mail is invalid.");
         }
       }
+
       if (body.password) {
         const passwordIsValid = validator.isStrongPassword(body!.password);
 
