@@ -29,6 +29,7 @@ Este é um projeto de estudos de uma API com as operações de CRUD (Create, Rea
 - SOLID
 - Injeção de Dependência (Dependency Injection)
 - Repository Pattern
+- Criptografia e Autenticação
 
 ---
 
