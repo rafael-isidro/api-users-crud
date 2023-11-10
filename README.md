@@ -40,6 +40,7 @@ A API Cubos Bank oferece as seguintes funcionalidades:
 - Listagem de todos os Usuários (Read)
 - Atualização de dados do Usuário pelo ID (Update)
 - Exclusão de Usuário pelo ID (Delete)
+- Login de usuário
 
 ---
 
@@ -69,5 +70,6 @@ User {
 - POST /users - cria um usuário
 - PATCH /users/:id - atualiza um usuário
 - DELETE /users/:id - deleta um usuário
+- LOGIN /users/login - login de usuário
 
 ## Link do Deploy: https://bored-ox-fedora.cyclic.app
