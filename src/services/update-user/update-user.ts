@@ -3,7 +3,12 @@ import bcrypt from "bcrypt";
 import { User } from "../../models/user";
 import { IUpdateUserRepository, UpdateUserParams } from "./protocols";
 import { HttpRequest, HttpResponse } from "../../controllers/protocols";
-import { badRequest, ok, serverError } from "../../controllers/helpers";
+import {
+  badRequest,
+  ok,
+  serverError,
+  unauthorized,
+} from "../../controllers/helpers";
 import { MongoGetUserRepository } from "../../repositories/get-user/mongo-get-user";
 import { IService } from "../protocols";
 import { Response } from "express";
@@ -19,67 +24,64 @@ export class UpdateUserService implements IService {
       const id = httpRequest?.params?.id;
       const body = httpRequest?.body;
 
-      if (!id) {
-        return badRequest("Missing user id");
-      }
+      if (!id) return badRequest("Missing user id");
+      if (!body) return badRequest("Missing fields");
 
-      if (!body) {
-        return badRequest("Missing fields");
-      }
-
-      const allowedFieldsToUpdate: (keyof UpdateUserParams)[] = [
-        "firstName",
-        "lastName",
-        "password",
-        "email",
-      ];
-      const someFieldNotAllowedToUpdate = Object.keys(body).some(
-        (key) => !allowedFieldsToUpdate.includes(key as keyof UpdateUserParams)
-      );
-
-      if (someFieldNotAllowedToUpdate) {
-        return badRequest("Some recieved field is not allowed");
-      }
-
-      const mongoGetUserRepository = new MongoGetUserRepository();
       if (body.email) {
-        const { id } = httpResponse.locals.user;
-        body.email = body.email.toLowerCase();
-
-        const userByEmail = await mongoGetUserRepository.getUserByParam({
-          email: body.email,
-        });
-        const userById = await mongoGetUserRepository.getUserByParam({
-          _id: new ObjectId(id),
-        });
-
-        if (userByEmail && body.email !== userById!.email) {
-          return badRequest("E-mail already exists.");
-        }
-
-        const emailIsValid = validator.isEmail(body!.email!);
-
-        if (!emailIsValid) {
-          return badRequest("E-mail is invalid.");
-        }
+        const { id: authId } = httpResponse.locals.user;
+        const isValidEmail = await this.verifyEmail(
+          authId,
+          body.email.toLowerCase()
+        );
+        if (!isValidEmail) return badRequest("Email is not valid");
       }
-
+      if (id !== httpResponse.locals.user.id)
+        return unauthorized("Unauthorized");
       if (body.password) {
-        const passwordIsValid = validator.isStrongPassword(body!.password);
-
-        if (!passwordIsValid) {
+        const isValidPassword = this.verifyPassword(body.password);
+        if (!isValidPassword)
           return badRequest(
             "Your password must be have at least 8 characters long, combination of uppercase and lowercase letters, 1 special character and 1 numeric digit."
           );
-        }
-        const hashPassword = await bcrypt.hash(body.password, 10);
-        body.password = hashPassword;
+        body.password = await bcrypt.hash(body.password, 10);
       }
       const user = await this.updateUserRepository.updateUser(id, body);
+      if (!user) return badRequest("User not found");
+
+      if (user.password) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { password: _, ...userUpdated } = user;
+        return ok<User>(userUpdated);
+      }
 
       return ok<User>(user);
     } catch (error) {
       return serverError();
     }
+  }
+
+  async verifyEmail(
+    authId: string,
+    email: string
+  ): Promise<HttpResponse<string> | boolean> {
+    const mongoGetUserRepository = new MongoGetUserRepository();
+    const userByEmail = await mongoGetUserRepository.getUserByParam({
+      email,
+    });
+
+    const userById = await mongoGetUserRepository.getUserByParam({
+      _id: new ObjectId(authId),
+    });
+
+    const emailIsValid = validator.isEmail(email!);
+    if (userByEmail && email !== userById!.email) {
+      return false;
+    }
+
+    return emailIsValid;
+  }
+
+  async verifyPassword(password: string): Promise<boolean> {
+    return validator.isStrongPassword(password);
   }
 }

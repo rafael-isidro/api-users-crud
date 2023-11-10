@@ -2,7 +2,12 @@ import validator from "validator";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { User } from "../../models/user";
-import { badRequest, ok, serverError } from "../../controllers/helpers";
+import {
+  badRequest,
+  notFound,
+  ok,
+  serverError,
+} from "../../controllers/helpers";
 import { HttpRequest, HttpResponse } from "../../controllers/protocols";
 import { IGetUserRepository, LoginUserParam } from "./protocols";
 import { IService } from "../protocols";
@@ -15,35 +20,23 @@ export class LoginUserService implements IService {
     try {
       const body = httpRequest!.body!;
 
-      if (!body) {
-        return badRequest("Missing fields");
-      }
-
-      const requiredFields = ["email", "password"];
-
-      for (const field of requiredFields) {
-        if (!httpRequest!.body![field as keyof LoginUserParam]) {
-          return badRequest(`Field ${field} is required`);
-        }
-      }
-
-      const emailIsValid = validator.isEmail(httpRequest.body!.email);
-
-      if (!emailIsValid) {
-        return badRequest("E-mail is invalid");
-      }
+      const isValidEmailAndPassword = await this.verifyEmailAndPassword(
+        body.email,
+        body.password
+      );
+      if (!isValidEmailAndPassword)
+        return badRequest("E-mail or password is invalid");
 
       const user = await this.getUserRepository.getUserByParam({
         email: body!.email,
       });
-      if (!user) {
-        return badRequest("User not found.");
-      }
+      if (!user) return notFound("User not found.");
 
-      const verifyPassword = await bcrypt.compare(body.password, user.password);
-      if (!verifyPassword) {
-        return badRequest("E-mail or password is invalid");
-      }
+      const verifyPassword = await bcrypt.compare(
+        body.password,
+        user.password!
+      );
+      if (!verifyPassword) return badRequest("E-mail or password is invalid");
 
       const token = jwt.sign({ id: user.id }, process.env.JWT_PASS ?? "", {
         expiresIn: "8h",
@@ -56,5 +49,11 @@ export class LoginUserService implements IService {
     } catch (error) {
       return serverError();
     }
+  }
+  async verifyEmailAndPassword(email: string, password: string) {
+    const emailIsValid = validator.isEmail(email.toLowerCase());
+    const passwordIsValid = validator.isStrongPassword(password);
+
+    return emailIsValid && passwordIsValid;
   }
 }

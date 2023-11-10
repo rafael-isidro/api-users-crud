@@ -10,7 +10,8 @@ export class MongoGetUsersRepository implements IGetUsersRepository {
       .find({})
       .toArray();
 
-    return users.map(({ _id, ...rest }) => ({
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    return users.map(({ _id, password, ...rest }) => ({
       ...rest,
       id: _id.toHexString(),
     }));

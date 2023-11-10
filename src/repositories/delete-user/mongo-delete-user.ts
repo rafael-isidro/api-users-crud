@@ -11,7 +11,7 @@ export class MongoDeleteUserRepository implements IDeleteUserRepository {
       .findOne({ _id: new ObjectId(id) });
 
     if (!user) {
-      throw new Error("User not found.");
+      throw new Error("Unauthorized.");
     }
 
     const { deletedCount } = await MongoClient.db
@@ -22,7 +22,8 @@ export class MongoDeleteUserRepository implements IDeleteUserRepository {
       throw new Error("User not deleted");
     }
 
-    const { _id, ...rest } = user;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { _id, password, ...rest } = user;
     return { id: _id.toHexString(), ...rest };
   }
 }

@@ -1,20 +1,21 @@
 import { User } from "../../models/user";
-import { badRequest, ok, serverError } from "../../controllers/helpers";
+import { ok, serverError, unauthorized } from "../../controllers/helpers";
 import { HttpRequest, HttpResponse } from "../../controllers/protocols";
 import { IDeleteUserRepository } from "./protocols";
 import { IService } from "../protocols";
+import { Response } from "express";
 
 export class DeleteUserService implements IService {
   constructor(private readonly deleteUserRepository: IDeleteUserRepository) {}
   async handle(
-    httpRequest: HttpRequest<any>
+    httpRequest: HttpRequest<any>,
+    httpResponse: Response
   ): Promise<HttpResponse<User | string>> {
     try {
       const id = httpRequest.params?.id;
 
-      if (!id) {
-        return badRequest("Missing user id");
-      }
+      if (id !== httpResponse.locals.user.id)
+        return unauthorized("Unauthorized");
 
       const user = await this.deleteUserRepository.deleteUser(id);
 

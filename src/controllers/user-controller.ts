@@ -65,9 +65,12 @@ export const deleteUserController = async (req: Request, res: Response) => {
   const mongoDeleteUserRepository = new MongoDeleteUserRepository();
   const deleteUserService = new DeleteUserService(mongoDeleteUserRepository);
 
-  const { body, statusCode } = await deleteUserService.handle({
-    params: req.params,
-  });
+  const { body, statusCode } = await deleteUserService.handle(
+    {
+      params: req.params,
+    },
+    res
+  );
 
   res.status(statusCode).send(body);
 };

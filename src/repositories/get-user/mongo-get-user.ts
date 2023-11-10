@@ -12,9 +12,7 @@ export class MongoGetUserRepository implements IGetUserRepository {
       .collection<MongoUser>("users")
       .findOne(param);
 
-    if (!user) {
-      return null;
-    }
+    if (!user) return null;
 
     const { _id, ...rest } = user;
 

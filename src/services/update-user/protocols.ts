@@ -8,5 +8,5 @@ export interface UpdateUserParams {
 }
 
 export interface IUpdateUserRepository {
-  updateUser(id: string, params: UpdateUserParams): Promise<User>;
+  updateUser(id: string, params: UpdateUserParams): Promise<User | null>;
 }

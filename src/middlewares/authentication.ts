@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 
 import { HttpResponse } from "../controllers/protocols";
 import { JwtPayload } from "../services/login-user/protocols";
-import { notFound, serverError, unauthorized } from "../controllers/helpers";
+import { unauthorized } from "../controllers/helpers";
 import { ObjectId } from "mongodb";
 import { MongoClient } from "../database/mongo";
 import { MongoUser } from "../repositories/mongo-protocols";
@@ -34,7 +34,7 @@ export class AuthMiddleware {
         .findOne({ _id: new ObjectId(id) });
 
       if (!user) {
-        const { body, statusCode } = notFound("User not found");
+        const { body, statusCode } = unauthorized("Unauthorized");
         return res.status(statusCode).send(body);
       }
       const { _id, ...rest } = user;
@@ -48,7 +48,8 @@ export class AuthMiddleware {
 
       next();
     } catch (error) {
-      return serverError();
+      const { body, statusCode } = unauthorized("Invalid Token");
+      return res.status(statusCode).send(body);
     }
   }
 }
