@@ -19,7 +19,7 @@ export const createUserController = async (req: Request, res: Response) => {
     body: req.body,
   });
 
-  res.status(statusCode).send(body);
+  return res.status(statusCode).send(body);
 };
 
 export const loginUserController = async (req: Request, res: Response) => {
@@ -30,7 +30,7 @@ export const loginUserController = async (req: Request, res: Response) => {
     body: req.body,
   });
 
-  res.status(statusCode).send(body);
+  return res.status(statusCode).send(body);
 };
 
 export const getUsersController = async (_: Request, res: Response) => {
@@ -40,7 +40,7 @@ export const getUsersController = async (_: Request, res: Response) => {
 
     const { body, statusCode } = await getUsersService.handle();
 
-    res.status(statusCode).send(body);
+    return res.status(statusCode).send(body);
   } catch (error) {
     return serverError();
   }
@@ -58,7 +58,7 @@ export const updateUserController = async (req: Request, res: Response) => {
     res
   );
 
-  res.status(statusCode).send(body);
+  return res.status(statusCode).send(body);
 };
 
 export const deleteUserController = async (req: Request, res: Response) => {
@@ -72,5 +72,5 @@ export const deleteUserController = async (req: Request, res: Response) => {
     res
   );
 
-  res.status(statusCode).send(body);
+  return res.status(statusCode).send(body);
 };
