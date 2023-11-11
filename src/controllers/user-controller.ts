@@ -9,7 +9,6 @@ import { MongoUpdateUserRepository } from "../repositories/update-user/mongo-upd
 import { UpdateUserService } from "../services/update-user/update-user";
 import { MongoDeleteUserRepository } from "../repositories/delete-user/mongo-delete-user";
 import { DeleteUserService } from "../services/delete-user/delete-user";
-import { serverError } from "./helpers";
 
 export const createUserController = async (req: Request, res: Response) => {
   const mongoCreateUserRepository = new MongoCreateUserRepository();
@@ -34,16 +33,12 @@ export const loginUserController = async (req: Request, res: Response) => {
 };
 
 export const getUsersController = async (_: Request, res: Response) => {
-  try {
-    const mongoGetUsersRepository = new MongoGetUsersRepository();
-    const getUsersService = new GetUsersService(mongoGetUsersRepository);
+  const mongoGetUsersRepository = new MongoGetUsersRepository();
+  const getUsersService = new GetUsersService(mongoGetUsersRepository);
 
-    const { body, statusCode } = await getUsersService.handle();
+  const { body, statusCode } = await getUsersService.handle();
 
-    return res.status(statusCode).send(body);
-  } catch (error) {
-    return serverError();
-  }
+  return res.status(statusCode).send(body);
 };
 
 export const updateUserController = async (req: Request, res: Response) => {
