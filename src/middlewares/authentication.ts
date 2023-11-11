@@ -5,8 +5,7 @@ import { HttpResponse } from "../controllers/protocols";
 import { JwtPayload } from "../services/login-user/protocols";
 import { unauthorized } from "../controllers/helpers";
 import { ObjectId } from "mongodb";
-import { MongoClient } from "../database/mongo";
-import { MongoUser } from "../repositories/mongo-protocols";
+import { MongoGetUserRepository } from "../repositories/get-user/mongo-get-user";
 
 export class AuthMiddleware {
   async handle(
@@ -15,6 +14,7 @@ export class AuthMiddleware {
     next: NextFunction
   ): Promise<HttpResponse<string> | Response | void> {
     try {
+      const mongoGetUserRepository = new MongoGetUserRepository();
       const { authorization } = req.headers;
 
       if (!authorization) {
@@ -23,27 +23,19 @@ export class AuthMiddleware {
       }
 
       const token = authorization.split(" ")[1];
-
       const { id } = jwt.verify(
         token,
         process.env.JWT_PASS ?? ""
       ) as JwtPayload;
-
-      const user = await MongoClient.db
-        .collection<MongoUser>("users")
-        .findOne({ _id: new ObjectId(id) });
+      const user = await mongoGetUserRepository.getUserByParam({ _id: new ObjectId(id) })
 
       if (!user) {
         const { body, statusCode } = unauthorized("Unauthorized");
         return res.status(statusCode).send(body);
       }
-      const { _id, ...rest } = user;
-
-      const result = { id: _id.toHexString(), ...rest };
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { password: _, ...userLogged } = result;
-
+      const { password: _, ...userLogged } = user;
       res.locals.user = userLogged;
 
       next();
