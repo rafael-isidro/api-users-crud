@@ -47,29 +47,29 @@ export class VerifyUserFields {
     VerifyUserFields.validateRequiredFields(req, res, next, requiredFields);
   }
 
-  async updateVerify(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<Response | void> {
-    const allowedFieldsToUpdate: (keyof UpdateUserParams)[] = [
-      "firstName",
-      "lastName",
-      "password",
-      "email",
-    ];
+async updateVerify(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<Response | void> {
+  const allowedFieldsToUpdate: (keyof UpdateUserParams)[] = [
+    "firstName",
+    "lastName",
+    "password",
+    "email",
+  ];
 
-    const allowedField = Object.keys(req.body).find((key) =>
-      allowedFieldsToUpdate.includes(key as keyof UpdateUserParams)
-    );
+  const invalidFields = Object.keys(req.body).filter(
+    (key) => !allowedFieldsToUpdate.includes(key as keyof UpdateUserParams)
+  );
 
-    if (!allowedField) {
-      const response = badRequest(`Some field is not allowed for update`);
-      return res.status(response.statusCode).send(response.body);
-    }
-
-    next();
+  if (invalidFields.length > 0) {
+    const response = badRequest(`Invalid field(s) for update: ${invalidFields.join(", ")}`);
+    return res.status(response.statusCode).send(response.body);
   }
+
+  next();
+}
 
   async deleteVerify(
     req: Request,
