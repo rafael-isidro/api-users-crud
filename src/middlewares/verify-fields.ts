@@ -5,20 +5,37 @@ import { LoginUserParam } from "../services/login-user/protocols";
 import { UpdateUserParams } from "../services/update-user/protocols";
 
 export class VerifyUserFields {
+  private static validateRequiredFields(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+    requiredFields: string[]
+  ) {
+    if (!req.body) {
+      const response = badRequest(`Missing Fields.`);
+      return res.status(response.statusCode).send(response.body);
+    }
+
+    for (const field of requiredFields) {
+      if (
+        !req.body?.[field as keyof CreateUserParams | keyof LoginUserParam]
+          ?.length
+      ) {
+        const response = badRequest(`Field ${field} is required.`);
+        return res.status(response.statusCode).send(response.body);
+      }
+    }
+
+    next();
+  }
+
   async createVerify(
     req: Request,
     res: Response,
     next: NextFunction
   ): Promise<Response | void> {
     const requiredFields = ["firstName", "lastName", "email", "password"];
-
-    for (const field of requiredFields) {
-      if (!req.body?.[field as keyof CreateUserParams]?.length) {
-        const response = badRequest(`Field ${field} is required.`);
-        return res.status(response.statusCode).send(response.body);
-      }
-    }
-    next();
+    VerifyUserFields.validateRequiredFields(req, res, next, requiredFields);
   }
 
   async loginVerify(
@@ -26,20 +43,8 @@ export class VerifyUserFields {
     res: Response,
     next: NextFunction
   ): Promise<Response | void> {
-    if (!req.body) {
-      const response = badRequest(`Missing fields.`);
-      return res.status(response.statusCode).send(response.body);
-    }
-
     const requiredFields = ["email", "password"];
-
-    for (const field of requiredFields) {
-      if (!req.body?.[field as keyof LoginUserParam]?.length) {
-        const response = badRequest(`Field ${field} is required.`);
-        return res.status(response.statusCode).send(response.body);
-      }
-    }
-    next();
+    VerifyUserFields.validateRequiredFields(req, res, next, requiredFields);
   }
 
   async updateVerify(
